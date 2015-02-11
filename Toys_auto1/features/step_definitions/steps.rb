@@ -1,8 +1,7 @@
 def ClosePopUp
 
-  driver=$driver
-  element = driver.find_elements :xpath => "//div[@id='TRU-chat-invite']/a[@title='Close Chat Invitation']"
-  element2 = driver.find_elements :xpath => "//div[@class='fsrInvite']/a[@class='fsrCloseBtn']"
+  element = $driver.find_elements :xpath => "//div[@id='TRU-chat-invite']/a[@title='Close Chat Invitation']"
+  element2 = $driver.find_elements :xpath => "//div[@class='fsrInvite']/a[@class='fsrCloseBtn']"
 
     if element.count > 0
 
@@ -40,19 +39,19 @@ Then /^I select categories ([^"]*) and ([^"]*)$/ do |x,y|
   sleep(1)
 end
 
-Then /^I select ([^"]*) of the Toy/ do |x|
-  element = $driver.find_element :xpath => "(//div [@class = 'prodloop-thumbnail']/a/#{x})[1]"
-  sleep(1)
+Then /^I select the Toy/ do
+  element = $driver.find_element :xpath => "(//div [@class = 'prodloop-thumbnail']/a/img)[1]"
+  sleep(5)
   ClosePopUp()
   element.click
-  sleep(1)
+  sleep(5)
   puts('Toy picked.')
-  sleep(1)
+  sleep(5)
 end
 
 Then /^I select Lego Fusion$/ do
   element = $driver.find_element :xpath => "(//div[@id='tru_category_3']/div[@style]/div[@style]/div[@style]/a/img)[8]"
-  sleep(1)
+  sleep(5)
   puts('Locating Lego Fusion...')
   ClosePopUp()
   element.click
@@ -61,6 +60,7 @@ Then /^I select Lego Fusion$/ do
 end
 
 Then /^I click ([^"]*)$/ do |x|
+  sleep 5
   element = $driver.find_element :id => "#{x}"
   sleep(1)
   ClosePopUp()
@@ -118,7 +118,7 @@ Then /^([^"]*) Items$/ do |x|
   sleep(1)
   element = $driver.find_element :xpath => "//table[@id='cartProductsTable']/tbody/tr/td/ul/li/a[@id='#{x}']"
   puts('Locating remove button....')
-  sleep(1)
+  sleep(5)
   ClosePopUp()
   element.click
   puts('Item removed...')
@@ -149,7 +149,7 @@ Then /^Close Driver$/ do
   puts(' ')
 end
 
-Then /^Navigate to Login$/ do
+When /^I Navigate to Login$/ do
   sleep 5
   element = $driver.find_element :xpath => "//a[@class='liText']/span[@id='hdrWelcomeLoginText']"
   $driver.mouse.move_to element
@@ -167,29 +167,59 @@ Then /^Log in$/ do
   element = $driver.find_element :xpath => "(//input[@alt='Sign In'])[1]"
   element.click
   puts('Logged in.')
-
-
-end
-
-
-Before do
-
-  $driver.get "http://toysrus.com"
-
+##NOTES: Wildcard xpath
+##"//*[contains(@class = 'x') and text()='#{y}']"
 
 end
+
 
 Then /^Close Driver temp$/ do
   $driver.quit
 
 end
-Then /^Log out with ([^"]*) button$/ do |x|
-  sleep 5
-  element = $driver.find_element :xpath => "//a[@class='liText']/span[@class='loggedIn']"
-  $driver.mouse.move_to element
-  puts('logout button found')
-  element = $driver.find_element :xpath => "//div[@class='tipcontent']/a[text()='#{x}']"
+
+Before do
+  $driver.get "http://toysrus.com"
+end
+
+Then /^I ([^"]*) from my account$/ do |x|
+  element = $driver.find_elements :xpath => "//span[@class='loggedIn']"
+  if element.count>0
+    element[0].click
+    element = $driver.find_element :xpath => "//div[@class='tipcontent']/a[text()='#{x}']"
+    element.click
+    puts('logging out...')
+  end
+end
+
+Then /^click the ([^"]*) icon$/ do |x|
+  element = $driver.find_element :xpath => "//div[@class='#{x}']"
   element.click
-  puts('logging out...')
+end
+
+Then /^switch to new window$/ do
+  $driver.switch_to.window $driver.window_handles.last
+  sleep 5
+  assert $driver.title == 'Pinterest'
 
 end
+
+Then /^close window$/ do
+  $driver.close
+end
+
+
+#loops
+
+Then /^Loop1$/ do
+  elements = $driver.find_elements :xpath => "//a[@class='results pageNumber']"
+  numpages = elements.count-2
+  for e in 2..numpages do
+    element = $driver.find_element :xpath => "//a[@class='results pageNumber' and text()='#{e}']"
+    element.click
+    puts "#{e}"
+  end
+
+end
+
+
